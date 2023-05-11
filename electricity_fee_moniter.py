@@ -71,7 +71,7 @@ class Moniter:
             "build": 1,
             "payProjectId": 297,
             "area": 1,
-            "dd": "Python is the most powerful language.",
+            "dd": "Python is the most powerful language.",  # 这里应该是订单备注
             "areaid": 1,
             "factorycode": "E035"
         }).json()["payOrderTrade"]["orderno"]
@@ -229,10 +229,10 @@ if __name__ == "__main__":
         "password": "",  # 武理统一门户登陆密码
         "service": "http://cwsf.whut.edu.cn/casLogin",
         "limit_power": 15,  # 十五度电的时候发二维码和邮件
-        "amt": 1,  # 充一块, 注意！ 如果要使用，请先尝试几次再充大额度，最好还是自己上去充
-        "mail_account": "",  # 你的邮箱,请使用qq邮箱，如不是qq邮箱需要修改send_mail()方法中的smtp服务器
-        "mail_pwd": '',  # 你的邮箱认证码
-        "recv_list": [""]  # 群发的list
+        "amt": 1,  # 充1块, 注意！ 如果要使用，请先尝试几次再充大额度，最好还是自己上去充
+        "mail_account": '',  # 你的邮箱,请使用qq邮箱，如不是qq邮箱需要修改send_mail()方法中的smtp服务器
+        "mail_pwd": "",  # 你的邮箱认证码
+        "recv_list": ['']  # 群发的list
     }
     my_moniter = Moniter(settings)
     my_moniter.run()
