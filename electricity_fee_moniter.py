@@ -1,3 +1,4 @@
+import datetime
 import os.path
 from email.mime.multipart import MIMEMultipart
 import requests
@@ -174,7 +175,7 @@ class Moniter:
             "factorycode": "E035"
         })
         restext = res.json()
-        print("目前电费：{}".format(restext["remainPower"]))
+        print("{}\t目前电费：{}".format(str(datetime.datetime.now())[:-7], restext["remainPower"]))
         self.remain_power = restext["remainPower"]
         with open(os.path.split(os.path.realpath(__file__))[0] + "/meterId.txt", "w") as f:
             f.write(self.meterId)
@@ -208,6 +209,7 @@ class Moniter:
         url = self.whut_login(self.service, self.account["username"], self.account["password"])
         if not url:
             print("登陆失败，请重新设定账号密码")
+            return
         self.sessions.get(url)
         if not self.meterId:
             self.get_area_info()
