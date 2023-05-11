@@ -71,7 +71,7 @@ class Moniter:
             "build": 1,
             "payProjectId": 297,
             "area": 1,
-            "dd": "给宿舍交钱啦",
+            "dd": "Python is the most powerful language.",
             "areaid": 1,
             "factorycode": "E035"
         }).json()["payOrderTrade"]["orderno"]
