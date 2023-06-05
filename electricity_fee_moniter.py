@@ -7,7 +7,7 @@ from email.utils import formataddr
 import smtplib
 from lxml import etree
 import base64
-from enc import strEnc
+from enc import *
 
 
 class Moniter:
@@ -38,7 +38,7 @@ class Moniter:
         # tree = etree.parse(local_file_path)
         tree = etree.HTML(html._content.decode("utf-8"))
         tpass = dict(tree.xpath('//*[@id="lt"]')[0].attrib)["value"]
-        des = strEnc(username + password + tpass, "1", "2", "3")
+        # des = strEnc(username + password + tpass, "1", "2", "3")
         self.sessions.headers.update({})
         self.sessions.cookies.set(domain="whut.edu.cn", path="/", name="cas_hash", value="")
         # print(tpass)
@@ -48,9 +48,9 @@ class Moniter:
                 "service": service
             },
             data={
-                "rsa": des,
-                "ul": len(username),
-                "pl": len(password),
+                "rsa": "",
+                "ul": encrypt(username),
+                "pl": encrypt(password),
                 "lt": tpass,
                 "execution": "e1s1",
                 "_eventId": "submit",
