@@ -23,9 +23,12 @@ class Moniter:
         self.sender = kwargs["mail_account"]
         self.mail_pwd = kwargs["mail_pwd"]
         self.recv_list = kwargs["recv_list"]
+        self.ariaId = None
         if os.path.exists(os.path.split(os.path.realpath(__file__))[0] + "/meterId.txt"):
             with open(os.path.split(os.path.realpath(__file__))[0] + "/meterId.txt", "r") as f:
-                self.meterId = f.read()
+                text = f.readlines()
+                self.meterId = text[0]
+                self.ariaId = text[1]
 
     def whut_login(self, service, username, password):
         self.sessions.headers.update({
@@ -62,6 +65,7 @@ class Moniter:
         return result.headers["location"]
 
     def pay(self):
+        self.sessions.headers["content-type"] = "application/x-www-form-urlencoded; charset=UTF-8"
         orderno = self.sessions.post("http://cwsf.whut.edu.cn/elePayprojectCreateOrder", data={
             "payAmt": self.amt,  # 默认交1块
             "meterId": self.meterId,  # 只需要这个对得上就可以充钱
@@ -72,11 +76,16 @@ class Moniter:
             "floor": 1,
             "build": 1,
             "payProjectId": 297,
-            "area": 1,
-            "dd": "Python is the most powerful language.",  # 这里应该是订单备注
-            "areaid": 1,
+            "area": "学生宿舍",
+            "dd": "请别改了，我爬一下方便缴费，加校验不光你要改，我也要改",  # 这里应该是订单备注
+            "areaid": self.ariaId,
             "factorycode": "E035"
-        }).json()["payOrderTrade"]["orderno"]
+        }).json()
+        if orderno.get('payOrderTrade') is None:
+            print("订单错误，请发issue")
+            return False
+        else:
+            orderno = orderno["payOrderTrade"]["orderno"]
         html = self.sessions.post("http://cwsf.whut.edu.cn/onlinePay", data={
             "orderno": orderno,
             "orderamt": self.amt,
@@ -106,21 +115,22 @@ class Moniter:
 
     def get_area_info(self):
         while True:
-            print("请输入地区代号")
+
             print("\n".join(self.sessions.post("http://cwsf.whut.edu.cn/getAreaInfo", data={
                 "factorycode": "E035"
             }).json()["areaList"]))
+            print("请输入地区代号（如0001@学生宿舍马区东院则输入0001或者1）")
             try:
                 self.area = int(input(""))
             except Exception as e:
                 print("输入错误，请输入数字")
                 continue
-            if self.area > 12 or self.area < 0:
+            if self.area > 13 or self.area < 0:
                 print("输入错误，请输入1-13的数字")
             else:
                 self.area = "{:04d}".format(self.area)
                 break
-
+        self.ariaId = self.area
     def select_build(self):
         while True:
             self.build = input("请选择你的缴费位置代号，如输入 东1舍 ").strip(" ")
@@ -156,13 +166,21 @@ class Moniter:
         room_dict = {}
         for i in room:
             now = i.split("@")
-            room_dict[now[1].split("-")[1]] = now[0]
+            now1 = now[1].split("-")
+            room_flag = False
+            if len(now1) == 2:
+                room_dict[now1[1]] = now[0]
+                room_flag = True
+            else:
+                room_dict[now[1]] = now[0]
         print("\n".join(room))
         while True:
-            self.room = input("请输入你的房间号").strip(" ")
-            if room_dict.get(self.room):
-                self.room = room_dict.get(self.room)
-                break
+            self.room = input("请输入你的房间号，如00011651@海虹5栋-319，输入319，如果没有房间号，请直接输入前面的数字").strip(" ")
+            if room_flag:
+                if room_dict.get(self.room):
+                    self.room = room_dict.get(self.room)
+                    break
+
             print("选择错误，请确认")
 
     def query_Room_Elec(self):
@@ -180,7 +198,7 @@ class Moniter:
         print("{}\t目前电费：{}".format(str(datetime.datetime.now())[:-7], restext["remainPower"]))
         self.remain_power = restext["remainPower"]
         with open(os.path.split(os.path.realpath(__file__))[0] + "/meterId.txt", "w") as f:
-            f.write(self.meterId)
+            f.write(self.meterId + f"\n{self.ariaId}")
 
     def send_mail(self, code):
         ret = True
@@ -231,7 +249,7 @@ if __name__ == "__main__":
         "password": "",  # 武理统一门户登陆密码
         "service": "http://cwsf.whut.edu.cn/casLogin",
         "limit_power": 15,  # 十五度电的时候发二维码和邮件
-        "amt": 1,  # 充1块, 注意！ 如果要使用，请先尝试几次再充大额度，最好还是自己上去充
+        "amt": 20,  # 充1块, 注意！ 如果要使用，请先尝试几次再充大额度，最好还是自己上去充
         "mail_account": '',  # 你的邮箱,请使用qq邮箱，如不是qq邮箱需要修改send_mail()方法中的smtp服务器
         "mail_pwd": "",  # 你的邮箱认证码
         "recv_list": ['']  # 群发的list
