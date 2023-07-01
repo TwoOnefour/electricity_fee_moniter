@@ -27,7 +27,7 @@ class Moniter:
         if os.path.exists(os.path.split(os.path.realpath(__file__))[0] + "/meterId.txt"):
             with open(os.path.split(os.path.realpath(__file__))[0] + "/meterId.txt", "r") as f:
                 text = f.readlines()
-                self.meterId = text[0]
+                self.meterId = text[0].strip("\n")
                 self.ariaId = text[1]
 
     def whut_login(self, service, username, password):
