@@ -31,6 +31,7 @@ class Moniter:
         self.sessions.headers.update({
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.35",
         })
+
         html = self.sessions.get("http://zhlgd.whut.edu.cn/tpass/login", params={
             "service": service
         })
@@ -42,6 +43,7 @@ class Moniter:
         self.sessions.headers.update({})
         self.sessions.cookies.set(domain="whut.edu.cn", path="/", name="cas_hash", value="")
         # print(tpass)
+        public_key = self.sessions.post("http://zhlgd.whut.edu.cn/tpass/rsa").json()["publicKey"]
         result = self.sessions.post(
             url="http://zhlgd.whut.edu.cn/tpass/login",
             params={
@@ -49,8 +51,8 @@ class Moniter:
             },
             data={
                 "rsa": "",
-                "ul": encrypt(username),
-                "pl": encrypt(password),
+                "ul": encrypt(username, public_key),
+                "pl": encrypt(password, public_key),
                 "lt": tpass,
                 "execution": "e1s1",
                 "_eventId": "submit",
