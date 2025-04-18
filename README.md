@@ -8,7 +8,7 @@
 # Modify Settings
 请修改相应的账号密码等数据
 
-![修改数据](https://bucket.pursuecode.cn/upload/2023/05/3.png)
+![修改数据](https://bucket.voidval.com/upload/2023/05/3.png)
 
 第一次使用请直接运行
 ```angular2html
